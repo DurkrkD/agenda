@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Minha Agenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="img/icon.png">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div><div class="brand-name">Minha Rotina</div><div class="brand-tag">Foco e organização</div></div>
+    </div>
+    <div>
+      <div class="side-label">Filtrar por categoria</div>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div>
+      <div class="side-label">Progresso de hoje</div>
+      <div class="progress-card">
+        <div class="progress-top"><b id="progressFraction">0/0</b><span id="progressPct">0%</span></div>
+        <div class="bar"><div class="bar-fill" id="progressBar"></div></div>
+        <div class="progress-hint" id="progressHint">Nenhuma tarefa para hoje ainda.</div>
+      </div>
+    </div>
+    <button class="notif-btn off" id="notifBtn" style="margin-top:auto">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span id="notifLabel">Ativar lembretes</span><span class="status"></span>
+    </button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="date-block">
+        <div class="weekday" id="topDate">—</div>
+        <div class="clock"><span class="live" id="topClock">00:00:00</span><span id="topYear"></span></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-metrics" id="btnMetrics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/></svg>
+          Métricas
+        </button>
+        <button class="btn-new" id="btnNew">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Novo Compromisso
+        </button>
+      </div>
+    </header>
+
+    <!-- METRICS PANEL -->
+    <section class="metrics-panel" id="metricsPanel" hidden>
+      <div class="metrics-head">
+        <h2>Métricas de desempenho</h2>
+        <div class="segmented" id="metricsPeriod">
+          <button class="seg-btn active" data-period="semana">Semana</button>
+          <button class="seg-btn" data-period="mes">Mês</button>
+          <button class="seg-btn" data-period="ano">Ano</button>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card wide">
+          <div class="chart-label">Tarefas concluídas por dia</div>
+          <div class="bar-chart" id="barChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-label">Por categoria</div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="donutSvg" viewBox="0 0 120 120"></svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-label">Taxa de conclusão</div>
+          <div class="rate-display" id="rateDisplay"></div>
+        </div>
+      </div>
+
+      <!-- Heat map -->
+      <div class="chart-card heatmap-card">
+        <div class="chart-label">Mapa de atividade <span class="chart-sub" id="heatmapSub"></span></div>
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+    </section>
+
+    <section class="content" id="contentSection">
+      <div class="content-head">
+        <h2 id="listTitle">Compromissos de hoje <span class="muted" id="listCount"></span></h2>
+        <div class="segmented" id="scope">
+          <button class="seg-btn active" data-scope="hoje">Hoje</button>
+          <button class="seg-btn" data-scope="todos">Todos</button>
+        </div>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modalTitle">Novo compromisso</h3>
+      <button class="modal-close" id="modalClose" aria-label="Fechar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="fTitle">Título da tarefa</label>
+        <input id="fTitle" type="text" placeholder="Ex: Treino de pernas, Reunião, Prova de história..." maxlength="90" />
+      </div>
+      <div class="field">
+        <label>Categoria</label>
+        <div class="cat-pills" id="catPills"></div>
+        <div class="newcat-panel" id="newcatPanel" hidden style="margin-top:11px">
+          <input id="newcatName" type="text" placeholder="Nome da nova categoria (ex: Inglês, Igreja...)" maxlength="28" />
+          <div class="swatches" id="swatches"></div>
+          <div class="newcat-actions">
+            <button class="btn-ghost" id="newcatCancel" style="padding:8px 16px">Cancelar</button>
+            <button class="btn-primary" id="newcatAdd" style="padding:8px 18px">Adicionar categoria</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="fDate">Data</label><input id="fDate" type="date" /></div>
+        <div class="field"><label for="fTime">Horário</label><input id="fTime" type="time" /></div>
+      </div>
+      <div class="field">
+        <label for="fReminder">Lembrete (antes do horário)</label>
+        <select id="fReminder">
+          <option value="0">Sem lembrete</option>
+          <option value="5">5 minutos antes</option>
+          <option value="10" selected>10 minutos antes</option>
+          <option value="15">15 minutos antes</option>
+          <option value="30">30 minutos antes</option>
+          <option value="60">1 hora antes</option>
+          <option value="120">2 horas antes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fDesc">Descrição (opcional)</label>
+        <textarea id="fDesc" placeholder="Detalhes, local, observações..." maxlength="280"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="btnCancel">Cancelar</button>
+      <button class="btn-primary" id="btnSave">Salvar compromisso</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="js/script.js"></script>
+</body>
+</html>
